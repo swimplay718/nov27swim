@@ -876,6 +876,21 @@ html[data-screen=play],html[data-screen=play] body{background-color:#8cab81!impo
 #barBot{bottom:0;height:env(safe-area-inset-bottom,0px)}
 html[data-screen=orange] .sysbar{background:#ffbd55}
 html[data-screen=play] .sysbar{background:#8cab81}
+
+/* v2 bars: olive everywhere except orange success; scroll only in letter */
+html,html body{background-color:#93a937!important}
+html[data-screen=orange],html[data-screen=orange] body{background:#ffbd55!important;background-image:none!important}
+html[data-screen=play],html[data-screen=play] body{background-color:#93a937!important}
+.sysbar{background:#93a937!important}
+html[data-screen=play] .sysbar{background:#93a937!important}
+html[data-screen=orange] .sysbar{background:#ffbd55!important}
+#barTop{top:-300px!important;height:calc(300px + env(safe-area-inset-top,0px))!important}
+#barBot{bottom:-300px!important;height:calc(300px + env(safe-area-inset-bottom,0px))!important}
+html body .overlay.success-orange{box-shadow:0 0 0 100vmax #ffbd55!important}
+html,body{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;overflow:hidden!important;overscroll-behavior:none!important;touch-action:none}
+html body .overlay.overlay.overlay,html body .overlay.overlay.overlay>.panel,html body .overlay.overlay.overlay:has(#letter:not(.hidden)),html body .overlay.overlay.overlay:has(#letter:not(.hidden))>.panel,.overlay.success-orange,.overlay.success-orange>.panel{overflow:hidden!important;touch-action:none}
+button,input,#pwInput,.panel button{touch-action:manipulation!important}
+#letter,#secretLetterBox,.panel .letter,.panel #letter:not(.hidden){overflow-y:auto!important;overflow-x:hidden!important;touch-action:pan-y!important;overscroll-behavior:contain}
 </style></head><body><div id="barTop" class="sysbar"></div><div id="barBot" class="sysbar"></div><main class="shell"><section class="game"><canvas id="c" width="440" height="690" aria-label="수직 등반 게임"></canvas><div class="hud pixel-hud" aria-label="게임 진행 현황">
   <div class="pixel-progress-card pixel-goal" role="group" aria-label="골인 지점까지">
     <div class="top-card-heading">
@@ -1230,7 +1245,7 @@ function place(){const panel=ov.querySelector('.panel');const intro=!ov.classLis
 function fit(){const mp=ov.querySelector('.panel');if(mp.offsetWidth<50)return;const sp=sl.querySelector('.panel');sp.style.setProperty('width',mp.offsetWidth+'px','important');sp.style.setProperty('height',mp.offsetHeight+'px','important')}
 function fitPanel(o,reserve){const pn=o.querySelector('.panel');if(!pn||o.classList.contains('hidden'))return;const cs=getComputedStyle(o);const aw=o.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),ah=o.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-reserve;const nw=pn.offsetWidth,nh=pn.offsetHeight;if(!nw||!nh)return;let k=Math.min(1,aw/nw,ah/nh);k=Math.max(.45,k);const pt=parseFloat(cs.paddingTop),full=o.clientHeight-pt-parseFloat(cs.paddingBottom);const dy=Math.round(pt+full/2-reserve/2-(pn.offsetTop+nh/2));pn.style.transform=((Math.abs(dy)>1)?'translateY('+dy+'px) ':'')+(k<.999?'scale('+k.toFixed(3)+')':'');}
 function fitAll(){const introBtn=!btn.classList.contains('hidden');fitPanel(ov,(!ov.classList.contains('hidden')&&!start.classList.contains('hidden')&&pw.classList.contains('hidden')&&sl.classList.contains('hidden'))?74:0);fitPanel(pw,0);if(!sl.classList.contains('hidden'))fit();fitPanel(sl,0)}
-const meta=document.querySelector('meta[name=theme-color]');const COL={orange:'#ffbd55',play:'#8cab81',meadow:'#93a937'};let lastScr='';function tint(){const vis=o=>!o.classList.contains('hidden');let scr='play';if(vis(ov)){scr=ov.classList.contains('success-orange')?'orange':'meadow'}else if(vis(pw)||vis(sl)){scr='meadow'}if(scr===lastScr)return;lastScr=scr;document.documentElement.dataset.screen=scr;if(meta)meta.setAttribute('content',COL[scr])}
+const meta=document.querySelector('meta[name=theme-color]');const COL={orange:'#ffbd55',play:'#93a937',meadow:'#93a937'};let lastScr='';function tint(){const vis=o=>!o.classList.contains('hidden');let scr='play';if(vis(ov)){scr=ov.classList.contains('success-orange')?'orange':'meadow'}else if(vis(pw)||vis(sl)){scr='meadow'}if(scr===lastScr)return;lastScr=scr;document.documentElement.dataset.screen=scr;if(meta)meta.setAttribute('content',COL[scr])}
 setInterval(()=>{fitAll();place();tint()},150);window.addEventListener('resize',()=>{fitAll();place()});window.addEventListener('orientationchange',()=>setTimeout(()=>{fitAll();place()},200));if(window.visualViewport)visualViewport.addEventListener('resize',()=>{fitAll();place()});window.addEventListener('resize',place);
 let onOk=null;function openPw(){inp.value='';err.textContent='';pw.classList.remove('hidden','shake');setTimeout(()=>inp.focus(),30)}window.__askPw=cb=>{onOk=cb;openPw()};btn.addEventListener('click',()=>{onOk=null;inp.value='';err.textContent='';pw.classList.remove('hidden','shake');setTimeout(()=>inp.focus(),30);});
 $('pwCancel').addEventListener('click',()=>{onOk=null;pw.classList.add('hidden')});
@@ -1255,4 +1270,8 @@ let lt=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-lt<400
 window.addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault()},{passive:false});
 window.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['+','-','=','0','c','x','a'].includes(e.key)&&!isIn(e.target))e.preventDefault()},true);
 })();
-</script></body></html>
+</script><script>(function(){function sc(t){while(t&&t!==document){if(t.id==='letter'||t.id==='secretLetterBox'||(t.classList&&t.classList.contains('letter')))return t;t=t.parentNode}return null}
+var sy=0;document.addEventListener('touchstart',function(e){sy=e.touches[0].clientY},{passive:true,capture:true});
+document.addEventListener('touchmove',function(e){var el=sc(e.target);if(!el||el.scrollHeight<=el.clientHeight+1){e.preventDefault();return}var dy=e.touches[0].clientY-sy;if((el.scrollTop<=0&&dy>0)||(el.scrollTop+el.clientHeight>=el.scrollHeight-1&&dy<0))e.preventDefault()},{passive:false,capture:true});
+document.addEventListener('wheel',function(e){if(!sc(e.target))e.preventDefault()},{passive:false});
+window.addEventListener('scroll',function(){window.scrollTo(0,0)});})();</script></body></html>
